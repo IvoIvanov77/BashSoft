@@ -1,7 +1,5 @@
 package bg.softuni.io;
 
-import java.util.List;
-
 public class OutputWriter {
 
     public static void writeMessage(String message)
@@ -24,8 +22,8 @@ public class OutputWriter {
         System.out.println("\u001B[31m" + message + "\u001B[0m");
     }
 
-    public static void printStudent(String name, List<Integer> marks) {
-        String output = String.format("%s - %s", name, marks.toString());
+    public static void printStudent(String name, Double mark) {
+        String output = String.format("%s - %f", name, mark);
         OutputWriter.writeMessageOnNewLine(output);
     }
 }

@@ -1,291 +1,76 @@
 package bg.softuni.io;
 
+import bg.softuni.exceptions.InvalidInputException;
+import bg.softuni.io.commands.*;
 import bg.softuni.judge.Tester;
 import bg.softuni.network.DownloadManager;
 import bg.softuni.repository.StudentsRepository;
-import bg.softuni.staticData.SessionData;
-import bg.softuni.staticData.ExceptionMessages;
 
-import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 
-class CommandInterpreter {
-    static void interpretCommand(String input) throws IOException {
+public class CommandInterpreter {
+
+    private IOManager ioManager;
+    private Tester tester;
+    private DownloadManager downloadManager;
+    private StudentsRepository studentsRepository;
+//    private RepositoryFilter repositoryFilter;
+//    private RepositorySorter repositorySorter;
+
+    public CommandInterpreter(IOManager ioManager, Tester tester, DownloadManager downloadManager,
+                              StudentsRepository studentsRepository) {
+        this.ioManager = ioManager;
+        this.tester = tester;
+        this.downloadManager = downloadManager;
+        this.studentsRepository = studentsRepository;
+    }
+
+    void interpretCommand(String input) throws IOException {
         String[] data = input.split("\\s+");
-        String command = data[0].toLowerCase();
+        String commandName = data[0].toLowerCase();
+        try {
+            Command command = parseCommand(input, data, commandName);
+            command.execute();
+        } catch (Throwable t) {
+            OutputWriter.displayException(t.getMessage());
+        }
+
+    }
+
+    private Command parseCommand(String line, String[] data, String command) throws IOException {
         switch (command) {
-            case "open":
-                tryOpenFile(input, data);
-                break;
             case "mkdir":
-                tryCreateDirectory(input, data);
-                break;
-            case "ls":
-                tryTraverseFolders(input, data);
-                break;
+                return new MakeDirectoryCommand(line, data, this.ioManager, this.tester, this.downloadManager, this.studentsRepository);
+            case "Is":
+                return new TraverseFoldersCommand(line, data, this.ioManager, this.tester, this.downloadManager, this.studentsRepository);
             case "cmp":
-                tryCompareFiles(input, data);
-                break;
-            case "cdrel":
-                tryChangeRelativePath(input, data);
-                break;
-            case "cdabs":
-                tryChangeAbsolutePath(input, data);
-                break;
-            case "readdb":
-                tryReadDatabaseFromFile(input, data);
-                break;
-            case "help":
-                tryGetHelp(input, data);
-                break;
-            case "show":
-                tryShowWantedCourse(input, data);
-                break;
-            case "filter":
-                tryPrintFilteredStudents(input, data);
-                break;
-            case "order":
-                tryPrintOrderedStudents(input, data);
-                break;
+                return new CompareFilesCommand(line, data, this.ioManager, this.tester, this.downloadManager, this.studentsRepository);
+            case "changeDirRel":
+                return new ChangeRelativePathCommand(line, data, this.ioManager, this.tester, this.downloadManager, this.studentsRepository);
+            case "changeDirAbs":
+                return new ChangeAbsolutePathCommand(line, data, this.ioManager, this.tester, this.downloadManager, this.studentsRepository);
+            case "readDb":
+                return new ReadDatabaseCommand(line, data, this.ioManager, this.tester, this.downloadManager, this.studentsRepository);
             case "download":
-                tryDownloadFile(command, data);
-                break;
-            case "downloadasynch":
-                tryDownloadFileOnNewThread(command, data);
-                break;
+                return new DownloadFileCommand(line, data, this.ioManager, this.tester, this.downloadManager, this.studentsRepository);
+            case "downloadAsync":
+                return new DownloadAsynchCommand(line, data, this.ioManager, this.tester, this.downloadManager, this.studentsRepository);
+            case "open":
+                return new OpenFileCommand(line, data, this.ioManager, this.tester, this.downloadManager, this.studentsRepository);
+            case "help":
+                return new GetHelpCommand(line, data, this.ioManager, this.tester, this.downloadManager, this.studentsRepository);
+            case "show":
+                return new ShowCourseCommand(line, data, this.ioManager, this.tester, this.downloadManager, this.studentsRepository);
+            case "filter":
+                return new PrintFilteredStudentsCommand(line, data, this.ioManager, this.tester, this.downloadManager, this.studentsRepository);
+            case "order":
+                return new PrintOrderedStudentsCommand(line, data, this.ioManager, this.tester, this.downloadManager, this.studentsRepository);
+            case "dropdb":
+                return new DropDatabaseCommand(line, data, this.ioManager, this.tester, this.downloadManager, this.studentsRepository);
             default:
-                displayInvalidCommandMessage(input);
-                break;
+                throw new InvalidInputException(line);
         }
     }
 
-    private static void tryDownloadFile(String command, String[] data) {
-        if (data.length != 2) {
-            displayInvalidCommandMessage(command);
-            return;
-        }
 
-        String fileUrl = data[1];
-        DownloadManager.download(fileUrl);
-    }
-
-    private static void tryDownloadFileOnNewThread(String command, String[] data) {
-        if (data.length != 2) {
-            displayInvalidCommandMessage(command);
-            return;
-        }
-
-        String fileUrl = data[1];
-        DownloadManager.downloadOnNewThread(fileUrl);
-    }
-
-    private static void tryPrintFilteredStudents(String input, String[] data) {
-        if (data.length != 5) {
-            displayInvalidCommandMessage(input);
-            return;
-        }
-
-        String course = data[1];
-        String filter = data[2].toLowerCase();
-        String takeCommand = data[3].toLowerCase();
-        String takeQuantity = data[4].toLowerCase();
-
-        tryParseParametersForFilter(takeCommand, takeQuantity, course, filter);
-    }
-
-    private static void tryParseParametersForFilter(
-            String takeCommand, String takeQuantity,
-            String courseName, String filter) {
-        if (!takeCommand.equals("take")) {
-            OutputWriter.displayException(ExceptionMessages.INVALID_TAKE_COMMAND);
-            return;
-        }
-
-        if (takeQuantity.equals("all")) {
-            StudentsRepository.filterAndTake(courseName, filter);
-            return;
-        }
-
-        try {
-            int studentsToTake = Integer.parseInt(takeQuantity);
-            StudentsRepository.filterAndTake(courseName, filter, studentsToTake);
-        } catch (NumberFormatException nfe) {
-            OutputWriter.displayException(ExceptionMessages.IVALID_TAKE_QUANTITY_PARAMETER);
-        }
-    }
-
-    private static void tryPrintOrderedStudents(String input, String[] data) {
-        if (data.length != 5) {
-            displayInvalidCommandMessage(input);
-            return;
-        }
-
-        String courseName = data[1];
-        String orderType = data[2].toLowerCase();
-        String takeCommand = data[3].toLowerCase();
-        String takeQuantity = data[4].toLowerCase();
-
-//        StudentsRepository.printOrderedStudents(courseName, modifier, numberOfStudents);
-        tryParseParametersForOrder(takeCommand, takeQuantity, courseName, orderType);
-    }
-
-    private static void tryParseParametersForOrder(
-            String takeCommand, String takeQuantity,
-            String courseName, String orderType) {
-        if (!takeCommand.equals("take")) {
-            OutputWriter.displayException(ExceptionMessages.INVALID_TAKE_COMMAND);
-            return;
-        }
-
-        if (takeQuantity.equals("all")) {
-            StudentsRepository.orderAndTake(courseName, orderType);
-            return;
-        }
-
-        try {
-            int studentsToTake = Integer.parseInt(takeQuantity);
-            StudentsRepository.orderAndTake(courseName, orderType, studentsToTake);
-        } catch (NumberFormatException nfe) {
-            OutputWriter.displayException(ExceptionMessages.IVALID_TAKE_QUANTITY_PARAMETER);
-        }
-    }
-
-    private static void tryShowWantedCourse(String input, String[] data) {
-        if (data.length != 2 && data.length != 3) {
-            displayInvalidCommandMessage(input);
-            return;
-        }
-
-        if (data.length == 2) {
-            String courseName = data[1];
-            StudentsRepository.getStudentsByCourse(courseName);
-        }
-
-        if (data.length == 3) {
-            String courseName = data[1];
-            String userName = data[2];
-            StudentsRepository.getStudentMarksInCourse(courseName, userName);
-        }
-    }
-
-    private static void tryOpenFile(String input, String[] data) throws IOException {
-        if (data.length != 2) {
-            displayInvalidCommandMessage(input);
-            return;
-        }
-
-        String fileName = data[1];
-        String filePath = SessionData.currentPath + "\\" + fileName;
-        File file = new File(filePath);
-        Desktop.getDesktop().open(file);
-    }
-
-    private static void tryCompareFiles(String input, String[] data) throws IOException {
-        if (data.length != 3) {
-            displayInvalidCommandMessage(input);
-            return;
-        }
-
-        String firstPath = data[1];
-        String secondPath = data[2];
-        Tester.compareContent(firstPath, secondPath);
-    }
-
-    private static void tryGetHelp(String input, String[] data) {
-        if (data.length != 1) {
-            displayInvalidCommandMessage(input);
-            return;
-        }
-
-        displayHelp();
-    }
-
-    private static void tryReadDatabaseFromFile(String input, String[] data) throws IOException {
-        if (data.length != 2) {
-            displayInvalidCommandMessage(input);
-            return;
-        }
-
-        String fileName = data[1];
-        StudentsRepository.initializeData(fileName);
-    }
-
-    private static void tryChangeAbsolutePath(String input, String[] data) {
-        if (data.length != 2) {
-            displayInvalidCommandMessage(input);
-            return;
-        }
-
-        String absolutePath = data[1];
-        IOManager.changeCurrentDirAbsolute(absolutePath);
-    }
-
-    private static void tryChangeRelativePath(String input, String[] data) {
-        if (data.length != 2) {
-            displayInvalidCommandMessage(input);
-            return;
-        }
-
-        String relativePath = data[1];
-        IOManager.changeCurrentDirRelativePath(relativePath);
-    }
-
-    private static void tryTraverseFolders(String input, String[] data) {
-        if (data.length != 1 && data.length != 2) {
-            displayInvalidCommandMessage(input);
-            return;
-        }
-
-        if (data.length == 1) {
-            IOManager.traverseDirectory(0);
-        }
-
-        if (data.length == 2) {
-            IOManager.traverseDirectory(Integer.valueOf(data[1]));
-        }
-    }
-
-    private static void tryCreateDirectory(String input, String[] data) {
-        if (data.length != 2) {
-            displayInvalidCommandMessage(input);
-            return;
-        }
-
-        String folderName = data[1];
-        IOManager.createDirectoryInCurrentFolder(folderName);
-    }
-
-    private static void displayInvalidCommandMessage(String input) {
-        String output = String.format("The command '%s' is invalid", input);
-        OutputWriter.displayException(output);
-    }
-
-    private static void displayHelp() {
-        StringBuilder helpBuilder = new StringBuilder();
-        helpBuilder.append("make directory - mkdir nameOfFolder")
-                .append(System.lineSeparator());
-        helpBuilder.append("traverse directory - ls depth")
-                .append(System.lineSeparator());
-        helpBuilder.append("comparing files - cmp absolutePath1 absolutePath2")
-                .append(System.lineSeparator());
-        helpBuilder.append("change directory - cdRel relativePath or \"..\" for level up")
-                .append(System.lineSeparator());
-        helpBuilder.append("change directory - cdAbs absolutePath")
-                .append(System.lineSeparator());
-        helpBuilder.append("read students data base - readDb fileName")
-                .append(System.lineSeparator());
-        helpBuilder.append("filter students - filter {courseName} excellent/average/poor take 2/5/all")
-                .append(System.lineSeparator());
-        helpBuilder.append("order students - order {courseName} ascending/descending take 20/10/all")
-                .append(System.lineSeparator());
-        helpBuilder.append("download file - download URL (saved in current directory)")
-                .append(System.lineSeparator());
-        helpBuilder.append("download file on new thread - downloadAsynch URL (saved in the current directory)")
-                .append(System.lineSeparator());
-        helpBuilder.append("get help – help")
-                .append(System.lineSeparator());
-        OutputWriter.writeMessage(helpBuilder.toString());
-        OutputWriter.writeEmptyLine();
-    }
 }

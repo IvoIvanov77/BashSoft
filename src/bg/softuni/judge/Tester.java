@@ -1,5 +1,6 @@
 package bg.softuni.judge;
 
+import bg.softuni.exceptions.InvalidPathException;
 import bg.softuni.io.OutputWriter;
 import bg.softuni.staticData.ExceptionMessages;
 
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class Tester {
 
-    public static void compareContent(String actualOutput, String expectedOutput) {
+    public void compareContent(String actualOutput, String expectedOutput) throws IOException {
         try {
 
             OutputWriter.writeMessageOnNewLine("Reading files...");
@@ -29,11 +30,12 @@ public class Tester {
                 OutputWriter.writeMessageOnNewLine("Files are identical. There are no mismatches.");
             }
         } catch (IOException ioe) {
-            OutputWriter.displayException(ExceptionMessages.INVALID_PATH);
+            throw new InvalidPathException();
+
         }
     }
 
-    private static List<String> readTextFile(String filePath) throws IOException {
+    private List<String> readTextFile(String filePath) throws IOException {
         List<String> text = new ArrayList<>();
 
         File file = new File(filePath);
@@ -53,13 +55,13 @@ public class Tester {
         return text;
     }
 
-    private static String getMismatchPath(String expectedOutput) {
+    private String getMismatchPath(String expectedOutput) {
         int index = expectedOutput.lastIndexOf('\\');
         String directoryPath = expectedOutput.substring(0, index);
         return directoryPath + "\\mismatch.txt";
     }
 
-    private static void printOutput(String mismatchPath, boolean isMismatch) throws IOException {
+    private void printOutput(String mismatchPath, boolean isMismatch) throws IOException {
         if (isMismatch)
         {
             List<String> mismatchStrings = Files.readAllLines(Paths.get(mismatchPath));
@@ -70,7 +72,7 @@ public class Tester {
         OutputWriter.writeMessageOnNewLine("Files are identical. There are no mismatches.");
     }
 
-    private static boolean compareStrings(
+    private boolean compareStrings(
             List<String> actualOutputString,
             List<String> expectedOutputString,
             String mismatchPath)
