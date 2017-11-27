@@ -1,5 +1,6 @@
 package bg.softuni.judge;
 
+import bg.softuni.contracts.ContentComparer;
 import bg.softuni.exceptions.InvalidPathException;
 import bg.softuni.io.OutputWriter;
 import bg.softuni.staticData.ExceptionMessages;
@@ -10,7 +11,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Tester {
+public class Tester implements ContentComparer{
 
     public void compareContent(String actualOutput, String expectedOutput) throws IOException {
         try {

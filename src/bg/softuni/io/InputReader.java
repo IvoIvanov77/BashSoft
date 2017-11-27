@@ -1,17 +1,19 @@
 package bg.softuni.io;
 
+import bg.softuni.contracts.Interpreter;
+import bg.softuni.contracts.Reader;
 import bg.softuni.staticData.SessionData;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-public class InputReader {
+public class InputReader implements Reader{
 
     private static final String END_COMMAND = "quit";
 
-    private CommandInterpreter interpreter;
+    private Interpreter interpreter;
 
-    public InputReader(CommandInterpreter interpreter) {
+    public InputReader(Interpreter interpreter) {
         this.interpreter = interpreter;
     }
 

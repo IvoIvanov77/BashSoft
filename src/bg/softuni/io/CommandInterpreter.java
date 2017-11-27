@@ -1,5 +1,6 @@
 package bg.softuni.io;
 
+import bg.softuni.contracts.*;
 import bg.softuni.exceptions.InvalidInputException;
 import bg.softuni.io.commands.*;
 import bg.softuni.judge.Tester;
@@ -8,28 +9,29 @@ import bg.softuni.repository.StudentsRepository;
 
 import java.io.IOException;
 
-public class CommandInterpreter {
+public class CommandInterpreter implements Interpreter {
 
-    private IOManager ioManager;
-    private Tester tester;
-    private DownloadManager downloadManager;
-    private StudentsRepository studentsRepository;
+    private DirectoryManager ioManager;
+    private ContentComparer tester;
+    private AsynchDownloader downloadManager;
+    private Database studentsRepository;
 //    private RepositoryFilter repositoryFilter;
 //    private RepositorySorter repositorySorter;
 
-    public CommandInterpreter(IOManager ioManager, Tester tester, DownloadManager downloadManager,
-                              StudentsRepository studentsRepository) {
+    public CommandInterpreter(DirectoryManager ioManager, ContentComparer tester,
+                              AsynchDownloader downloadManager,
+                              Database studentsRepository) {
         this.ioManager = ioManager;
         this.tester = tester;
         this.downloadManager = downloadManager;
         this.studentsRepository = studentsRepository;
     }
 
-    void interpretCommand(String input) throws IOException {
+    public void interpretCommand(String input) throws IOException {
         String[] data = input.split("\\s+");
         String commandName = data[0].toLowerCase();
         try {
-            Command command = parseCommand(input, data, commandName);
+            Executable command = parseCommand(input, data, commandName);
             command.execute();
         } catch (Throwable t) {
             OutputWriter.displayException(t.getMessage());
@@ -37,7 +39,7 @@ public class CommandInterpreter {
 
     }
 
-    private Command parseCommand(String line, String[] data, String command) throws IOException {
+    private Executable parseCommand(String line, String[] data, String command) throws IOException {
         switch (command) {
             case "mkdir":
                 return new MakeDirectoryCommand(line, data, this.ioManager, this.tester, this.downloadManager, this.studentsRepository);

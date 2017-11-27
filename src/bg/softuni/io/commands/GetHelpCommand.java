@@ -1,15 +1,12 @@
 package bg.softuni.io.commands;
 
+import bg.softuni.contracts.*;
 import bg.softuni.exceptions.InvalidCommandException;
-import bg.softuni.io.IOManager;
 import bg.softuni.io.OutputWriter;
-import bg.softuni.judge.Tester;
-import bg.softuni.network.DownloadManager;
-import bg.softuni.repository.StudentsRepository;
 
-public class GetHelpCommand extends Command {
-    public GetHelpCommand(String line, String[] data, IOManager ioManager, Tester tester,
-                          DownloadManager downloadManager, StudentsRepository studentsRepository) {
+public class GetHelpCommand extends Command implements Executable {
+    public GetHelpCommand(String line, String[] data, DirectoryManager ioManager, ContentComparer tester,
+                          AsynchDownloader downloadManager, Database studentsRepository) {
         super(line, data, ioManager, tester, downloadManager, studentsRepository);
     }
 

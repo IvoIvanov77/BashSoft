@@ -1,5 +1,6 @@
 package bg.softuni;
 
+import bg.softuni.contracts.*;
 import bg.softuni.io.CommandInterpreter;
 import bg.softuni.io.IOManager;
 import bg.softuni.io.InputReader;
@@ -14,15 +15,15 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Tester tester = new Tester();
-        DownloadManager downloadManager = new DownloadManager();
-        IOManager ioManager = new IOManager();
-        RepositorySorter sorter = new RepositorySorter();
-        RepositoryFilter filter = new RepositoryFilter();
-        StudentsRepository repository = new StudentsRepository(filter, sorter);
-        CommandInterpreter currentInterpreter =
-                new CommandInterpreter(ioManager,tester, downloadManager,repository);
-        InputReader reader = new InputReader(currentInterpreter);
+        ContentComparer tester = new Tester();
+        AsynchDownloader downloadManager = new DownloadManager();
+        DirectoryManager ioManager = new IOManager();
+        DataSorter sorter = new RepositorySorter();
+        DataFilter filter = new RepositoryFilter();
+        Database repository = new StudentsRepository(filter, sorter);
+        Interpreter currentInterpreter =
+                new CommandInterpreter(ioManager, tester, downloadManager, repository);
+        Reader reader = new InputReader(currentInterpreter);
         try {
             reader.readCommands();
         } catch (Exception e) {

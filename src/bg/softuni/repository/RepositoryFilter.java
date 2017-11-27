@@ -1,13 +1,12 @@
 package bg.softuni.repository;
 
-import bg.softuni.staticData.ExceptionMessages;
+import bg.softuni.contracts.DataFilter;
 import bg.softuni.io.OutputWriter;
-
-import java.util.ArrayList;
+import bg.softuni.staticData.ExceptionMessages;
 import java.util.HashMap;
 import java.util.function.Predicate;
 
-public class RepositoryFilter {
+public class RepositoryFilter implements DataFilter {
 
     public void printFilteredStudents(
             HashMap<String, Double> studentsWithMark,

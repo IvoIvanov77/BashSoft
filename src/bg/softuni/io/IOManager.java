@@ -1,5 +1,6 @@
 package bg.softuni.io;
 
+import bg.softuni.contracts.DirectoryManager;
 import bg.softuni.exceptions.InvalidFileNameException;
 import bg.softuni.exceptions.InvalidPathException;
 import bg.softuni.staticData.SessionData;
@@ -9,7 +10,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class IOManager {
+public class IOManager implements DirectoryManager{
 
     public void traverseDirectory(int depth) {
         Queue<File> subFolders = new LinkedList<>();

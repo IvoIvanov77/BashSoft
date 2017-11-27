@@ -1,22 +1,19 @@
 package bg.softuni.io.commands;
 
+import bg.softuni.contracts.*;
 import bg.softuni.exceptions.InvalidCommandException;
-import bg.softuni.io.IOManager;
-import bg.softuni.judge.Tester;
-import bg.softuni.network.DownloadManager;
-import bg.softuni.repository.StudentsRepository;
 
-public abstract class Command {
+public abstract class Command implements Executable{
 
     private String line;
     private String[] data;
-    private IOManager ioManager;
-    private Tester tester;
-    private DownloadManager downloadManager;
-    private StudentsRepository studentsRepository;
+    private DirectoryManager ioManager;
+    private ContentComparer tester;
+    private AsynchDownloader downloadManager;
+    private Database studentsRepository;
 
-    public Command(String line, String[] data, IOManager ioManager, Tester tester,
-                   DownloadManager downloadManager, StudentsRepository studentsRepository) {
+    public Command(String line, String[] data, DirectoryManager ioManager, ContentComparer tester,
+                   AsynchDownloader downloadManager, Database studentsRepository) {
         this.setLine(line);
         this.setData(data);
         this.setIoManager(ioManager);
@@ -50,35 +47,35 @@ public abstract class Command {
         this.data = data;
     }
 
-    protected IOManager getIoManager() {
+    protected DirectoryManager getIoManager() {
         return ioManager;
     }
 
-    private void setIoManager(IOManager ioManager) {
+    private void setIoManager(DirectoryManager ioManager) {
         this.ioManager = ioManager;
     }
 
-    protected Tester getTester() {
+    protected ContentComparer getTester() {
         return tester;
     }
 
-    private void setTester(Tester tester) {
+    private void setTester(ContentComparer tester) {
         this.tester = tester;
     }
 
-    protected DownloadManager getDownloadManager() {
+    protected AsynchDownloader getDownloadManager() {
         return downloadManager;
     }
 
-    private void setDownloadManager(DownloadManager downloadManager) {
+    private void setDownloadManager(AsynchDownloader downloadManager) {
         this.downloadManager = downloadManager;
     }
 
-    protected StudentsRepository getStudentsRepository() {
+    protected Database getStudentsRepository() {
         return studentsRepository;
     }
 
-    private void setStudentsRepository(StudentsRepository studentsRepository) {
+    private void setStudentsRepository(Database studentsRepository) {
         this.studentsRepository = studentsRepository;
     }
 }
