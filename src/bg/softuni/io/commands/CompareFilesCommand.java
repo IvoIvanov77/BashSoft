@@ -1,14 +1,19 @@
 package bg.softuni.io.commands;
 
+import bg.softuni.annotations.Alias;
+import bg.softuni.annotations.Inject;
 import bg.softuni.contracts.*;
 import bg.softuni.exceptions.InvalidCommandException;
 
 
+@Alias("cmp")
 public class CompareFilesCommand extends Command implements Executable {
 
-    public CompareFilesCommand(String line, String[] data, DirectoryManager ioManager, ContentComparer tester,
-                               AsynchDownloader downloadManager, Database studentsRepository) {
-        super(line, data, ioManager, tester, downloadManager, studentsRepository);
+    @Inject
+    private ContentComparer tester;
+
+    public CompareFilesCommand(String line, String[] data) {
+        super(line, data);
     }
 
     @Override
@@ -17,6 +22,6 @@ public class CompareFilesCommand extends Command implements Executable {
         if (data.length != 3) {
             throw new InvalidCommandException(this.getLine());
         }
-        this.getTester().compareContent(data[1], data[2]);
+        this.tester.compareContent(data[1], data[2]);
     }
 }

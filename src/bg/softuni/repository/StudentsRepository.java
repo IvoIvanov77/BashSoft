@@ -1,6 +1,7 @@
 package bg.softuni.repository;
 
 import bg.softuni.contracts.*;
+import bg.softuni.dataStructures.SimpleSortedList;
 import bg.softuni.exceptions.DataAlreadyInitializedException;
 import bg.softuni.exceptions.DataNotInitializedException;
 import bg.softuni.io.OutputWriter;
@@ -12,10 +13,7 @@ import bg.softuni.staticData.SessionData;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,8 +46,6 @@ public class StudentsRepository implements Database {
     public void unloadData()  {
         if (!isDataInitialized) {
             throw new DataNotInitializedException();
-
-
         }
         this.students = null;
         this.courses = null;
@@ -134,6 +130,20 @@ public class StudentsRepository implements Database {
         for (Map.Entry<String, Student> student : this.courses.get(course).getStudentsByName().entrySet()) {
             this.getStudentMarksInCourse(course, student.getKey());
         }
+    }
+
+    @Override
+    public SimpleSortedList<Course> getAllCoursesSorted(Comparator<Course> comparator) {
+        SimpleSortedList<Course> courseSortedList = new SimpleSortedList<>(Course.class, comparator);
+        courseSortedList.addAll(this.courses.values());
+        return courseSortedList;
+    }
+
+    @Override
+    public SimpleSortedList<Student> getAllStudentsSorted(Comparator<Student> comparator) {
+        SimpleSortedList<Student> studentSortedList = new SimpleSortedList<>(Student.class, comparator);
+        studentSortedList.addAll(this.students.values());
+        return studentSortedList;
     }
 
     private boolean isQueryForCoursePossible(String courseName) {

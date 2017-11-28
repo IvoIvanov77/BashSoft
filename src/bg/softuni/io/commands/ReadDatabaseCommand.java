@@ -1,12 +1,18 @@
 package bg.softuni.io.commands;
 
+import bg.softuni.annotations.Alias;
+import bg.softuni.annotations.Inject;
 import bg.softuni.contracts.*;
 import bg.softuni.exceptions.InvalidCommandException;
 
+@Alias("readDb")
 public class ReadDatabaseCommand extends Command implements Executable {
 
-    public ReadDatabaseCommand(String line, String[] data, DirectoryManager ioManager, ContentComparer tester, AsynchDownloader downloadManager, Database studentsRepository) {
-        super(line, data, ioManager, tester, downloadManager, studentsRepository);
+    @Inject
+    private Database studentsRepository;
+
+    public ReadDatabaseCommand(String line, String[] data) {
+        super(line, data);
     }
 
     @Override
@@ -15,6 +21,6 @@ public class ReadDatabaseCommand extends Command implements Executable {
         if (data.length != 2) {
             throw new InvalidCommandException(this.getLine());
         }
-        this.getStudentsRepository().loadData(data[1]);
+        this.studentsRepository.loadData(data[1]);
     }
 }

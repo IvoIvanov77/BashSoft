@@ -1,13 +1,16 @@
 package bg.softuni.io.commands;
 
+import bg.softuni.annotations.Alias;
 import bg.softuni.contracts.*;
 import bg.softuni.exceptions.InvalidCommandException;
 import bg.softuni.io.OutputWriter;
 
+@Alias("help")
 public class GetHelpCommand extends Command implements Executable {
-    public GetHelpCommand(String line, String[] data, DirectoryManager ioManager, ContentComparer tester,
-                          AsynchDownloader downloadManager, Database studentsRepository) {
-        super(line, data, ioManager, tester, downloadManager, studentsRepository);
+
+
+    public GetHelpCommand(String line, String[] data) {
+        super(line, data);
     }
 
     @Override
@@ -41,6 +44,8 @@ public class GetHelpCommand extends Command implements Executable {
                 "download file - download URL (saved in current directory)" +
                 System.lineSeparator() +
                 "download file on new thread - downloadAsynch URL (saved in the current directory)" +
+                System.lineSeparator() +
+                "display data entities - display students/courses ascending/descending" +
                 System.lineSeparator() +
                 "get help – help" +
                 System.lineSeparator();

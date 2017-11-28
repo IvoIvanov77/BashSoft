@@ -1,14 +1,18 @@
 package bg.softuni.io.commands;
 
+import bg.softuni.annotations.Alias;
+import bg.softuni.annotations.Inject;
 import bg.softuni.contracts.*;
 import bg.softuni.exceptions.InvalidCommandException;
 
+@Alias("show")
 public class ShowCourseCommand extends Command implements Executable {
 
-    public ShowCourseCommand(String line, String[] data, DirectoryManager ioManager, ContentComparer tester,
-                             AsynchDownloader downloadManager, Database studentsRepository) {
-        super(line, data, ioManager, tester, downloadManager, studentsRepository);
+    @Inject
+    private Database studentsRepository;
 
+    public ShowCourseCommand(String line, String[] data) {
+        super(line, data);
     }
 
     @Override
@@ -19,10 +23,10 @@ public class ShowCourseCommand extends Command implements Executable {
 
         }
         if (data.length == 2) {
-            this.getStudentsRepository().getStudentsByCourse(data[1]);
+            this.studentsRepository.getStudentsByCourse(data[1]);
         }
         if (data.length == 3) {
-            this.getStudentsRepository().getStudentMarksInCourse(data[1], data[2]);
+            this.studentsRepository.getStudentMarksInCourse(data[1], data[2]);
         }
     }
 }

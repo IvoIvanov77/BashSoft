@@ -75,4 +75,14 @@ public class SoftUniStudent implements Student {
                 (double) (SoftUniCourse.NUMBER_OF_TASKS_ON_EXAM * SoftUniCourse.MAX_SCORE_ON_EXAM_TASK);
         return percentageOfSolvedExam * 4 + 2;
     }
+
+    @Override
+    public int compareTo(Student other) {
+        return this.getUserName().compareTo(other.getUserName());
+    }
+
+    @Override
+    public String toString() {
+        return this.getUserName();
+    }
 }

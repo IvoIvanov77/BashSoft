@@ -1,13 +1,18 @@
 package bg.softuni.io.commands;
 
+import bg.softuni.annotations.Alias;
+import bg.softuni.annotations.Inject;
 import bg.softuni.contracts.*;
 import bg.softuni.exceptions.InvalidCommandException;
 
+@Alias("mkdir")
 public class MakeDirectoryCommand extends Command implements Executable {
 
-    public MakeDirectoryCommand(String line, String[] data, DirectoryManager ioManager, ContentComparer tester,
-                                AsynchDownloader downloadManager, Database studentsRepository) {
-        super(line, data, ioManager, tester, downloadManager, studentsRepository);
+    @Inject
+    private DirectoryManager ioManager;
+
+    public MakeDirectoryCommand(String line, String[] data) {
+        super(line, data);
     }
 
     @Override
@@ -18,6 +23,6 @@ public class MakeDirectoryCommand extends Command implements Executable {
         }
 
         String folderName = data[1];
-        this.getIoManager().createDirectoryInCurrentFolder(folderName);
+        this.ioManager.createDirectoryInCurrentFolder(folderName);
     }
 }

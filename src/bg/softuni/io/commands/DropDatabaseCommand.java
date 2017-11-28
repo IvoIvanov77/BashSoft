@@ -1,14 +1,19 @@
 package bg.softuni.io.commands;
 
+import bg.softuni.annotations.Alias;
+import bg.softuni.annotations.Inject;
 import bg.softuni.contracts.*;
 import bg.softuni.exceptions.InvalidCommandException;
 import bg.softuni.io.OutputWriter;
 
+@Alias("dropdb")
 public class DropDatabaseCommand extends Command implements Executable {
 
-    public DropDatabaseCommand(String line, String[] data, DirectoryManager ioManager, ContentComparer tester,
-                               AsynchDownloader downloadManager, Database studentsRepository) {
-        super(line, data, ioManager, tester, downloadManager, studentsRepository);
+    @Inject
+    private Database studentsRepository;
+
+    public DropDatabaseCommand(String line, String[] data) {
+        super(line, data);
     }
 
     @Override
@@ -17,7 +22,7 @@ public class DropDatabaseCommand extends Command implements Executable {
         if (data.length != 1) {
             throw new InvalidCommandException(this.getLine());
         }
-        this.getStudentsRepository().unloadData();
+        this.studentsRepository.unloadData();
         OutputWriter.writeMessageOnNewLine("Database dropped.");
     }
 }
